@@ -1,54 +1,64 @@
 (function() {
+
   const countries = document.querySelectorAll('path[name], path[class]');
   const svg = document.querySelector('.map-svg');
 
   // Add more countries here to place a pin on its location on the map
-  const dummyData = [
+  const dummyData = [ // Customizable
     {
       name: 'Nigeria',
       url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/NG.svg',
-      companies: 14 
+      count: 1004,
+      label: "Total Candidate"
     },
     {
       name: 'Canada',
       url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/CA.svg',
-      companies: 8 
+      count: 8,
+      label: "Total Candidate"
     },
     {
       name: 'United States',
       url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/US.svg',
-      companies: 23 
+      count: 23,
+      label: "Total Candidate"
     },
     {
       name: 'Russia',
       url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/RU.svg',
-      companies: 16 
+      count: 16,
+      label: "Total Candidate"
     },
     {
       name: 'Australia',
       url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/AU.svg',
-      companies: 21 
+      count: 21,
+      label: "Total Candidate"
     },
     {
       name: 'Ghana',
       url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/GH.svg',
-      companies: 93
+      count: 93,
+      label: "Total Candidate"
     }
   ];
 
   /**
    * Populate the tooltip container
    * @param {string} name 
-   * @param {number} companies 
+   * @param {number|string} count
    * @param {string} flag 
+   * @param {string} label
    */
-  const updateTooltipData = (name, companies, flag) => {
-    const title = document.querySelector('.map-tooltip #name');
-    const count = document.querySelector('.map-tooltip #companies');
-    const countryFlag = document.querySelector('.map-tooltip #flag');
-    
+  const updateTooltipData = (name, count, flag, label) => {
+    const title = document.querySelector('.map-tooltip #wmc_name');
+    const wmcCount = document.querySelector('.map-tooltip #wmc_count');
+    const countryFlag = document.querySelector('.map-tooltip #wmc_flag');
+    const wmcLabel = document.querySelector('.map-tooltip #wmc_label');
+
     title.textContent = name;
-    count.textContent = companies;
+    wmcCount.textContent = count;
+    wmcLabel.textContent = label;
     countryFlag.src = flag;
   }
 
@@ -68,7 +78,7 @@
     
     if (!match) return;
     
-    updateTooltipData(match.name, match.companies, match.url)
+    updateTooltipData(match.name, match.count, match.url, match.label)
     showAllHiddenPins();
     
     this.classList.add('hide');
@@ -91,7 +101,7 @@
   }
 
   /**
-   * Clicking outside of the map should close the map
+   * Clicking outside the map should close the tooltip
    * @returns {void}
    */
   const closeTooltipHandler = ({ target }) => {
@@ -175,7 +185,7 @@
       });
 
       span.setAttribute('data-name', country);
-      span.setAttribute('data-count', countryItem.companies);
+      span.setAttribute('data-count', countryItem.count);
 
       span.addEventListener('click', openTooltipHandler);
       span.addEventListener('click', () => el.style.fill = '#bfc8d2');
@@ -212,13 +222,13 @@
    */
   const getTopThreeValues = () => {
     const sortedData = dummyData.sort((a, b) => {
-      if (a.companies < b.companies) return -1;
-      if (a.companies > b.companies) return 1;
+      if (a.count < b.count) return -1;
+      if (a.count > b.count) return 1;
       return 0;
     });
 
     const sortedValues = sortedData.map(dataItem => {
-      return dataItem.companies;
+      return dataItem.count;
     });
 
     const uniqueValues = [...new Set(sortedValues)];

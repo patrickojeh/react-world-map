@@ -70,13 +70,13 @@ span.map-pin.hide {
   width: 100%;
 }
 
-.flag {
+.wmc_flag {
   align-items: center;
   display: flex;
   justify-content: center;
 }
 
-.flag {
+.wmc_flag {
   background: #ddd;
   border-radius: 4px;
   padding: 4px;
@@ -103,7 +103,7 @@ span.map-pin::before {
   height: inherit;
 }
 
-span#companies {
+span#wmc_count {
   color: #6699cc;
 }
 
