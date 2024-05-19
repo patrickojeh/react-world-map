@@ -1,0 +1,184 @@
+:root {
+  --white: #fff;
+  
+  font-family: sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0 0 0 12px;
+  padding: 0;
+}
+
+path {
+  filter: drop-shadow(0px 3px 1px #ddd);
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+svg {
+  display: inline-block;
+  height: 100%;
+  margin: 0 auto;
+  position: relative;
+  width: 100vw;
+}
+
+.map-tooltip {
+  background: var(--white);
+  border-radius: 6px;
+  box-shadow: 0 0 3px 1px #bbb;
+  display: none;
+  grid-template-columns: 32px auto;
+  padding: 8px 24px 8px 8px;
+  pointer-events: none;
+  position: absolute;
+  /* transform: translate(0%, -50%); */
+  width: max-content;
+  z-index: 10;
+}
+
+.map-tooltip.show {
+  animation: .25s revealTooltip cubic-bezier(1, 0, 0, 1) forwards;
+  display: grid;
+}
+
+span.map-pin.hide {
+  visibility: hidden;
+}
+
+.map-tooltip::after {
+  content: '';
+  border-top: 12px solid var(--white);
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  filter: drop-shadow(0 3px 1px #bbb);
+  bottom: -10px;
+  height: 0;
+  position: absolute;
+  right: 8px;
+  width: 0;
+  z-index: 0;
+}
+
+.map-tooltip img {
+  width: 100%;
+}
+
+.flag {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.flag {
+  background: #ddd;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+path {
+  position: relative;
+}
+
+span.map-pin {
+  cursor: pointer;
+  left: 0;
+  width: 12px;
+  height: 10px;
+  position: absolute;
+  transform: translate(50%, 50%);
+  top: 0;
+}
+
+span.map-pin::before {
+  content: url('data:image/svg+xml; utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="%23bbb"><path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>');
+  display: block;
+  width: inherit;
+  height: inherit;
+}
+
+span#companies {
+  color: #6699cc;
+}
+
+.map-container {
+  padding: 64px 0 64px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  /* position: relative; */
+}
+
+.map-container__legend {
+  min-width: 380px;
+  position: relative;
+  display: flex;
+  align-self: flex-end;
+  margin: 0 0 64px;
+  left: -80px;
+  top: 16px;
+}
+
+.map-container__legend::after {
+  background: linear-gradient(to right, #a1bdd9, #28496a);
+  border-radius: 4px;
+  bottom: -32px;
+  content: '';
+  height: 24px;
+  left: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.map-container__row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+span.map-pin--highest::before {
+  content: url('data:image/svg+xml; utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="%2328496a"><path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>');
+}
+
+span.map-pin--higher::before {
+  content: url('data:image/svg+xml; utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="%235583b1"><path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>');
+}
+
+span.map-pin--high::before {
+  content: url('data:image/svg+xml; utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="%23a1bdd9"><path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>');
+}
+
+foreignObject {
+  transform: translate(-5px, 0);
+}
+
+.map-wrapper {
+  overflow: hidden;
+}
+
+.map-svg {
+  transform: 0;
+}
+
+@keyframes revealTooltip {
+  from {
+    transform: translate(-90%, -115%) scale(0);
+    transform-origin: bottom right;
+  }
+  to {
+    transform: translate(-90%, -115%) scale(1);
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .map-svg {
+    transform: scale(1.05);
+    transform-origin: right;
+  }
+}
