@@ -6,15 +6,30 @@
   const svg = document.querySelector('.map-svg');
 
   /**
+   * @typedef {Object} MapData
+   * @param {string} name - The name of the country
+   * @param {string} url - The url to the country's flag image
+   * @param {number} companies - The number of companies in the country
+   */
+
+  /**
    * Load data from the external map file
-   * @returns {Array}
+   * @returns {Promise<Array<MapData>>} - A promise that resolves to an array of MapData objects
    */
   async function loadData() {
-    const request = await fetch('./data.json');
+    try {
+      const request = await fetch('./data.json');
 
-    const data = await request.json();
+      if (!request.ok) {
+        throw new Error('Failed to fetch map data');
+      }
 
-    return data;
+      const data = await request.json();
+  
+      return data;
+    } catch(error) {
+      throw new Error(error.message);
+    }
   }
 
   /**
@@ -236,11 +251,15 @@
    * @returns {void}
    */
   const init = async () => {
-    mapData = await loadData();
+    try {
+      mapData = await loadData();
 
-    const largestAreas = getLargestAreasByCountry(countries);
+      const largestAreas = getLargestAreasByCountry(countries);
 
-    mapPins(largestAreas);
+      mapPins(largestAreas);
+    } catch(error) {
+      throw new Error(error.message);
+    }
   }
 
   init();
