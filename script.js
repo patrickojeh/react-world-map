@@ -1,40 +1,21 @@
 (function() {
+  
+  let mapData = [];
+
   const countries = document.querySelectorAll('path[name], path[class]');
   const svg = document.querySelector('.map-svg');
 
-  // Add more countries here to place a pin on its location on the map
-  const dummyData = [
-    {
-      name: 'Nigeria',
-      url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/NG.svg',
-      companies: 14 
-    },
-    {
-      name: 'Canada',
-      url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/CA.svg',
-      companies: 8 
-    },
-    {
-      name: 'United States',
-      url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/US.svg',
-      companies: 23 
-    },
-    {
-      name: 'Russia',
-      url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/RU.svg',
-      companies: 16 
-    },
-    {
-      name: 'Australia',
-      url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/AU.svg',
-      companies: 21 
-    },
-    {
-      name: 'Ghana',
-      url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/GH.svg',
-      companies: 93
-    }
-  ];
+  /**
+   * Load data from the external map file
+   * @returns {Array}
+   */
+  async function loadData() {
+    const request = await fetch('./data.json');
+
+    const data = await request.json();
+
+    return data;
+  }
 
   /**
    * Populate the tooltip container
@@ -62,7 +43,7 @@
 
     if (country === null) return;
     
-    const match = dummyData.find(countryData => {
+    const match = mapData.find(countryData => {
       return countryData.name.toLowerCase() === country.toLowerCase();
     });
     
@@ -115,7 +96,7 @@
    */
   const getLargestAreasByCountry = (data) => {
     const countries = {};
-    const countryNamesInData = dummyData.map(country => country.name.toLowerCase());
+    const countryNamesInData = mapData.map(country => country.name.toLowerCase());
 
     Array.from(data).forEach(el => {
       const countryName = el.getAttribute('name');
@@ -170,7 +151,7 @@
 
       const country = countryName ?? countryNameByClass;
 
-      const [countryItem] = dummyData.filter(dataItem => {
+      const [countryItem] = mapData.filter(dataItem => {
         return dataItem.name === country;
       });
 
@@ -211,7 +192,7 @@
    * @returns {Array<number>}
    */
   const getTopThreeValues = () => {
-    const sortedData = dummyData.sort((a, b) => {
+    const sortedData = mapData.sort((a, b) => {
       if (a.companies < b.companies) return -1;
       if (a.companies > b.companies) return 1;
       return 0;
@@ -243,7 +224,7 @@
    * @returns {boolean}
    */
   const countryDataExists = (country) => {
-    const index = dummyData.findIndex(item => {
+    const index = mapData.findIndex(item => {
       return item.name.toLowerCase() === country.toLowerCase();
     });
     
@@ -254,7 +235,9 @@
    * Initialize map logic
    * @returns {void}
    */
-  const init = () => {
+  const init = async () => {
+    mapData = await loadData();
+
     const largestAreas = getLargestAreasByCountry(countries);
 
     mapPins(largestAreas);
