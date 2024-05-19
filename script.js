@@ -1,64 +1,50 @@
 (function() {
 
+  let mapData = [];
+
   const countries = document.querySelectorAll('path[name], path[class]');
   const svg = document.querySelector('.map-svg');
 
-  // Add more countries here to place a pin on its location on the map
-  const dummyData = [ // Customizable
-    {
-      name: 'Nigeria',
-      url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/NG.svg',
-      count: 1004,
-      label: "Total Candidate"
-    },
-    {
-      name: 'Canada',
-      url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/CA.svg',
-      count: 8,
-      label: "Total Candidate"
-    },
-    {
-      name: 'United States',
-      url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/US.svg',
-      count: 23,
-      label: "Total Candidate"
-    },
-    {
-      name: 'Russia',
-      url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/RU.svg',
-      count: 16,
-      label: "Total Candidate"
-    },
-    {
-      name: 'Australia',
-      url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/AU.svg',
-      count: 21,
-      label: "Total Candidate"
-    },
-    {
-      name: 'Ghana',
-      url: 'https://catamphetamine.gitlab.io/country-flag-icons/3x2/GH.svg',
-      count: 93,
-      label: "Total Candidate"
+  /**
+   * @typedef {Object} MapData
+   * @param {string} name - The name of the country
+   * @param {string} url - The url to the country's flag image
+   * @param {number} companies - The number of companies in the country
+   */
+
+  /**
+   * Load data from the external map file
+   * @returns {Promise<Array<MapData>>} - A promise that resolves to an array of MapData objects
+   */
+  async function loadData() {
+    try {
+      const request = await fetch('./data.json');
+
+      if (!request.ok) {
+        throw new Error('Failed to fetch map data');
+      }
+
+      const data = await request.json();
+
+      return data;
+    } catch(error) {
+      throw new Error(error.message);
     }
-  ];
+  }
 
   /**
    * Populate the tooltip container
-   * @param {string} name 
-   * @param {number|string} count
-   * @param {string} flag 
-   * @param {string} label
+   * @param {string} name
+   * @param {number} companies
+   * @param {string} flag
    */
-  const updateTooltipData = (name, count, flag, label) => {
-    const title = document.querySelector('.map-tooltip #wmc_name');
-    const wmcCount = document.querySelector('.map-tooltip #wmc_count');
-    const countryFlag = document.querySelector('.map-tooltip #wmc_flag');
-    const wmcLabel = document.querySelector('.map-tooltip #wmc_label');
+  const updateTooltipData = (name, companies, flag) => {
+    const title = document.querySelector('.map-tooltip #name');
+    const count = document.querySelector('.map-tooltip #companies');
+    const countryFlag = document.querySelector('.map-tooltip #flag');
 
     title.textContent = name;
-    wmcCount.textContent = count;
-    wmcLabel.textContent = label;
+    count.textContent = companies;
     countryFlag.src = flag;
   }
 
@@ -71,16 +57,16 @@
     const tooltip = document.querySelector('.map-tooltip');
 
     if (country === null) return;
-    
-    const match = dummyData.find(countryData => {
+
+    const match = mapData.find(countryData => {
       return countryData.name.toLowerCase() === country.toLowerCase();
     });
-    
+
     if (!match) return;
-    
-    updateTooltipData(match.name, match.count, match.url, match.label)
+
+    updateTooltipData(match.name, match.companies, match.url)
     showAllHiddenPins();
-    
+
     this.classList.add('hide');
 
     tooltip.classList.add('show');
@@ -101,11 +87,11 @@
   }
 
   /**
-   * Clicking outside the map should close the tooltip
+   * Clicking outside of the map should close the map
    * @returns {void}
    */
   const closeTooltipHandler = ({ target }) => {
-    
+
     if (Array.from(target.classList).includes('map-pin')) {
       return;
     }
@@ -125,12 +111,12 @@
    */
   const getLargestAreasByCountry = (data) => {
     const countries = {};
-    const countryNamesInData = dummyData.map(country => country.name.toLowerCase());
+    const countryNamesInData = mapData.map(country => country.name.toLowerCase());
 
     Array.from(data).forEach(el => {
       const countryName = el.getAttribute('name');
       const countryNameByClass = el.getAttribute('class');
-      
+
       const country = countryName ?? countryNameByClass;
 
       const { width: landAreaWidth } = el.getBoundingClientRect();
@@ -161,7 +147,7 @@
   const mapPins = (locations) => {
     locations.map(el => {
       const ns = 'http://www.w3.org/2000/svg';
-      
+
       const foreignObject = document.createElementNS(ns, 'foreignObject');
       const span = document.createElement('span');
       const countryName = el.getAttribute('name');
@@ -180,12 +166,12 @@
 
       const country = countryName ?? countryNameByClass;
 
-      const [countryItem] = dummyData.filter(dataItem => {
+      const [countryItem] = mapData.filter(dataItem => {
         return dataItem.name === country;
       });
 
       span.setAttribute('data-name', country);
-      span.setAttribute('data-count', countryItem.count);
+      span.setAttribute('data-count', countryItem.companies);
 
       span.addEventListener('click', openTooltipHandler);
       span.addEventListener('click', () => el.style.fill = '#bfc8d2');
@@ -193,7 +179,7 @@
       document.addEventListener('click', closeTooltipHandler);
 
       setForeignObjectAttributes(foreignObject, attrOptions);
-      
+
       foreignObject.appendChild(span);
 
       svg.appendChild(foreignObject);
@@ -221,14 +207,14 @@
    * @returns {Array<number>}
    */
   const getTopThreeValues = () => {
-    const sortedData = dummyData.sort((a, b) => {
-      if (a.count < b.count) return -1;
-      if (a.count > b.count) return 1;
+    const sortedData = mapData.sort((a, b) => {
+      if (a.companies < b.companies) return -1;
+      if (a.companies > b.companies) return 1;
       return 0;
     });
 
     const sortedValues = sortedData.map(dataItem => {
-      return dataItem.count;
+      return dataItem.companies;
     });
 
     const uniqueValues = [...new Set(sortedValues)];
@@ -237,7 +223,7 @@
   }
 
   /**
-   * 
+   *
    * @param {HTMLElement} el - The DOM element to set properties on
    * @param {Object} options - The attributes to set
    */
@@ -253,10 +239,10 @@
    * @returns {boolean}
    */
   const countryDataExists = (country) => {
-    const index = dummyData.findIndex(item => {
+    const index = mapData.findIndex(item => {
       return item.name.toLowerCase() === country.toLowerCase();
     });
-    
+
     return index >= 0;
   }
 
@@ -264,10 +250,16 @@
    * Initialize map logic
    * @returns {void}
    */
-  const init = () => {
-    const largestAreas = getLargestAreasByCountry(countries);
+  const init = async () => {
+    try {
+      mapData = await loadData();
 
-    mapPins(largestAreas);
+      const largestAreas = getLargestAreasByCountry(countries);
+
+      mapPins(largestAreas);
+    } catch(error) {
+      throw new Error(error.message);
+    }
   }
 
   init();
