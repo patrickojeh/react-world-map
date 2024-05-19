@@ -9,7 +9,7 @@
    * @typedef {Object} MapData
    * @param {string} name - The name of the country
    * @param {string} url - The url to the country's flag image
-   * @param {number} companies - The number of companies in the country
+   * @param {number} count - The number of counts in the country
    */
 
   /**
@@ -35,16 +35,19 @@
   /**
    * Populate the tooltip container
    * @param {string} name
-   * @param {number} companies
+   * @param {number} count
    * @param {string} flag
+   * @param {string} label
    */
-  const updateTooltipData = (name, companies, flag) => {
-    const title = document.querySelector('.map-tooltip #name');
-    const count = document.querySelector('.map-tooltip #companies');
-    const countryFlag = document.querySelector('.map-tooltip #flag');
+  const updateTooltipData = (name, count, flag, label) => {
+    const title = document.querySelector('.map-tooltip #wmcName');
+    const wmcCount = document.querySelector('.map-tooltip #wmcCount');
+    const countryFlag = document.querySelector('.map-tooltip #wmcFlag');
+    const wmcLabel = document.querySelector('.map-tooltip #wmcLabel');
 
     title.textContent = name;
-    count.textContent = companies;
+    wmcCount.textContent = count;
+    wmcLabel.textContent = label;
     countryFlag.src = flag;
   }
 
@@ -64,7 +67,7 @@
 
     if (!match) return;
 
-    updateTooltipData(match.name, match.companies, match.url)
+    updateTooltipData(match.name, match.count, match.url, match.label)
     showAllHiddenPins();
 
     this.classList.add('hide');
@@ -171,7 +174,7 @@
       });
 
       span.setAttribute('data-name', country);
-      span.setAttribute('data-count', countryItem.companies);
+      span.setAttribute('data-count', countryItem.count);
 
       span.addEventListener('click', openTooltipHandler);
       span.addEventListener('click', () => el.style.fill = '#bfc8d2');
@@ -208,13 +211,13 @@
    */
   const getTopThreeValues = () => {
     const sortedData = mapData.sort((a, b) => {
-      if (a.companies < b.companies) return -1;
-      if (a.companies > b.companies) return 1;
+      if (a.count < b.count) return -1;
+      if (a.count > b.count) return 1;
       return 0;
     });
 
     const sortedValues = sortedData.map(dataItem => {
-      return dataItem.companies;
+      return dataItem.count;
     });
 
     const uniqueValues = [...new Set(sortedValues)];

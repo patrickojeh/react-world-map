@@ -2,21 +2,25 @@
   {
     "name": "Nigeria",
     "url": "https://catamphetamine.gitlab.io/country-flag-icons/3x2/NG.svg",
-    "companies": 14
+    "count": 14,
+    "label": "Total Candidate"
   },
   {
     "name": "Canada",
     "url": "https://catamphetamine.gitlab.io/country-flag-icons/3x2/CA.svg",
-    "companies": 8
+    "count": 8,
+    "label": "Total Candidate"
   },
   {
     "name": "United States",
     "url": "https://catamphetamine.gitlab.io/country-flag-icons/3x2/US.svg",
-    "companies": 23
+    "count": 23,
+    "label": "Total Candidate"
   },
   {
     "name": "Russia",
     "url": "https://catamphetamine.gitlab.io/country-flag-icons/3x2/RU.svg",
-    "companies": 16
+    "count": 16,
+    "label": "Total Candidate"
   }
 ]
