@@ -1,6 +1,8 @@
 (function() {
 
   let mapData = [];
+  let countryData = [];
+  let generalLabel = null;
 
   const countries = document.querySelectorAll('path[name], path[class]');
   const svg = document.querySelector('.map-svg');
@@ -16,9 +18,9 @@
    * Load data from the external map file
    * @returns {Promise<Array<MapData>>} - A promise that resolves to an array of MapData objects
    */
-  async function loadData() {
+  async function loadData(path='./data.json') {
     try {
-      const request = await fetch('./data.json');
+      const request = await fetch(path);
 
       if (!request.ok) {
         throw new Error('Failed to fetch map data');
@@ -42,13 +44,14 @@
   const updateTooltipData = (name, count, flag, label) => {
     const title = document.querySelector('.map-tooltip #wmcName');
     const wmcCount = document.querySelector('.map-tooltip #wmcCount');
-    const countryFlag = document.querySelector('.map-tooltip #wmcFlag');
+    const countryFlag = document.querySelector('.map-tooltip .wmcFlag');
     const wmcLabel = document.querySelector('.map-tooltip #wmcLabel');
+    const country = countryData.find(c => c.name.toLowerCase() === name.toLowerCase());
 
     title.textContent = name;
     wmcCount.textContent = count;
     wmcLabel.textContent = label;
-    countryFlag.src = flag;
+    countryFlag.textContent = country.emoji;
   }
 
   /**
@@ -67,7 +70,7 @@
 
     if (!match) return;
 
-    updateTooltipData(match.name, match.count, match.url, match.label)
+    updateTooltipData(match.name, match.count, match.url, match?.label ?? generalLabel)
     showAllHiddenPins();
 
     this.classList.add('hide');
@@ -145,9 +148,10 @@
   /**
    * Place pin on largest area of a country
    * @param {Array<HTMLElement>} locations
+   * @param {string} eventType
    * @returns {void}
    */
-  const mapPins = (locations) => {
+  const mapPins = (locations, eventType = 'click') => {
     locations.map(el => {
       const ns = 'http://www.w3.org/2000/svg';
 
@@ -176,8 +180,8 @@
       span.setAttribute('data-name', country);
       span.setAttribute('data-count', countryItem.count);
 
-      span.addEventListener('click', openTooltipHandler);
-      span.addEventListener('click', () => el.style.fill = '#bfc8d2');
+      span.addEventListener(eventType, openTooltipHandler);
+      span.addEventListener(eventType, () => el.style.fill = '#bfc8d2');
 
       document.addEventListener('click', closeTooltipHandler);
 
@@ -255,11 +259,14 @@
    */
   const init = async () => {
     try {
-      mapData = await loadData();
+      const records = (await loadData())
+      mapData = records?.data;
+      generalLabel = records?.label;
+      countryData = await loadData('./countries.json');
 
       const largestAreas = getLargestAreasByCountry(countries);
 
-      mapPins(largestAreas);
+      mapPins(largestAreas, records?.event);
     } catch(error) {
       throw new Error(error.message);
     }
