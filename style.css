@@ -27,7 +27,11 @@ svg {
   margin: 0 auto;
   position: relative;
   width: 100vw;
-  cursor: pointer;
+  cursor: grab;
+}
+
+.map-svg:active {
+  cursor: grabbing;
 }
 
 .map-tooltip {

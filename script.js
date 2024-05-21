@@ -1,7 +1,16 @@
 let mapData = [];
-let countryData = [];
-let generalLabel = null;
+let countryData = await loadData('./countries.json');
+let secondaryLabel = null;
+let scale = 1;
+let originX = 0;
+let originY = 0;
+let startX = 0;
+let startY = 0;
+let offsetX = 0;
+let offsetY = 0;
 
+const container = document.querySelector('.map-container');
+const content = document.querySelector('.map-svg');
 const countries = document.querySelectorAll('path[name], path[class]');
 const svg = document.querySelector('.map-svg');
 
@@ -68,7 +77,7 @@ const openTooltipHandler = function(e) {
 
   if (!match) return;
 
-  updateTooltipData(match.name, match.count, match.url, match?.label ?? generalLabel)
+  updateTooltipData(match.name, match.count, match.url, match?.label ?? secondaryLabel)
   showAllHiddenPins();
 
   this.classList.add('hide');
@@ -251,26 +260,64 @@ const countryDataExists = (country) => {
   return index >= 0;
 }
 
+const handleWheel = (e) => {
+  e.preventDefault();
+  const zoomIntensity = 0.1;
+  const newScale = e.deltaY < 0 ? scale + zoomIntensity : scale - zoomIntensity;
+  if (newScale < 0.5 || newScale > 3) return; // Limit zoom levels
+  scale = newScale;
+  updateTransform();
+};
+
+const handleMouseDown = (e) => {
+  startX = e.clientX - originX;
+  startY = e.clientY - originY;
+  content.style.cursor = 'grabbing';
+
+  const handleMouseMove = (e) => {
+    originX = e.clientX - startX;
+    originY = e.clientY - startY;
+    offsetX = originX;
+    offsetY = originY;
+    updateTransform();
+  };
+
+  const handleMouseUp = () => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    content.style.cursor = 'grab';
+  };
+
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', handleMouseUp);
+};
+
+const updateTransform = () => {
+  content.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+};
+
 /**
  * Initialize map logic
  * @param {Object} options - User options to customize map behaviour
  * @returns {void}
  */
 const init = async (options = {}) => {
-  const { event } = options;
+  const { event, label, data, allowZoom } = options;
 
   try {
-    const records = (await loadData())
-    mapData = records?.data;
-    generalLabel = records?.label;
-    countryData = await loadData('./countries.json');
-
+    mapData = data;
+    secondaryLabel = label;
     const largestAreas = getLargestAreasByCountry(countries);
 
     mapPins(largestAreas, event);
+    if(allowZoom) {
+      container.addEventListener('wheel', handleWheel);
+      content.addEventListener('mousedown', handleMouseDown);
+    }
   } catch(error) {
     throw new Error(error.message);
   }
 }
+
 
 export default init;
