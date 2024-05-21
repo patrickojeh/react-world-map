@@ -44,6 +44,10 @@ svg {
   z-index: 10;
 }
 
+.map-tooltip small {
+  color: #999;
+}
+
 .map-tooltip.show {
   animation: .25s revealTooltip cubic-bezier(1, 0, 0, 1) forwards;
   display: grid;
@@ -78,8 +82,9 @@ span.map-pin.hide {
 }
 
 .wmcFlag {
-  background: #ddd;
+  background: #ececec;
   border-radius: 4px;
+  font-size: 1.2rem;
   padding: 4px;
 }
 
